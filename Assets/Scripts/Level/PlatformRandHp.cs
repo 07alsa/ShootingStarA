@@ -35,7 +35,7 @@ public class PlatformRandHp : MonoBehaviour
     Color color1;
     string colorCode2 = "#4169e1";
     Color color2;
-    string colorCode3 = "#000080";
+    string colorCode3 = "#570498";
     Color color3;
 
     private Color ColorCodeToColor(string colorCode, Color color)

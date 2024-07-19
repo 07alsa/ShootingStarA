@@ -149,7 +149,7 @@ public class PlayerController : Singleton<PlayerController>
 
 
             case 3:
-                ColorUtility.TryParseHtmlString("#000080", out targetColor);
+                ColorUtility.TryParseHtmlString("#570498", out targetColor);
 
                 StartCoroutine(LerpColorChnage(sprite1.color, targetColor));
                 StartCoroutine(LerpTrailChnage(trail.startColor, targetColor));
@@ -224,13 +224,36 @@ public class PlayerController : Singleton<PlayerController>
     IEnumerator dashing()
     {
         float duration = 2f;
-        float currentTime = 0;
+        float currentTime = 0f;
+        float blinkStart = 1.5f; // 깜빡거림이 시작되는 시간
+        float blinkFrequency = 1f; // 초기 깜빡거림 주기
+
         while (currentTime < duration)
         {
             currentTime += Time.deltaTime;
 
             if (Mathf.Abs(rigid.velocity.y) < maxFallingSpeed)
                 rigid.velocity = new Vector2(rigid.velocity.x, -maxFallingSpeed);
+
+            // 깜빡거림 시작
+            if (currentTime >= blinkStart)
+            {
+                float blinkTimer = Mathf.PingPong((currentTime - blinkStart) * blinkFrequency, 1f);
+                Color newColor = new Color(1f, 1f, 1f, blinkTimer);
+                sprite1.color = newColor;
+                sprite2.color = newColor;
+                trail.startColor = newColor;
+
+                // 깜빡거림 속도 증가
+                if (currentTime >= duration - 1.5f)
+                {
+                    blinkFrequency = 30f; // 깜빡거림 속도 증가
+                }
+                else
+                {
+                    blinkFrequency = 10f; // 기본 깜빡거림 속도
+                }
+            }
 
             yield return null;
         }
@@ -240,6 +263,11 @@ public class PlayerController : Singleton<PlayerController>
             isDash = false;
             StopCoroutine(dashCoroutine);
         }
+
+        // 대쉬 종료 시 원래 색상으로 복원
+        sprite1.color = Color.white;
+        sprite2.color = Color.white;
+        trail.startColor = Color.white;
     }
 
     IEnumerator dashEffect()
@@ -260,6 +288,7 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
+
     float blockY;
     public void SaveAcc()
     {
@@ -267,7 +296,6 @@ public class PlayerController : Singleton<PlayerController>
 
         // Debug.Log("[Before]: " + saveAcc);
     }
-
     public void Bounce(float yPos)
     {
         SaveAcc();
@@ -284,7 +312,29 @@ public class PlayerController : Singleton<PlayerController>
         else
         {
             rigid.velocity = Vector2.zero;
-            rigid.AddForce(Vector2.up * bounceForce, ForceMode2D.Impulse);
+
+            // 속도 구간에 따른 바운스 값을 설정
+            float bounceMultiplier;
+            switch (ACCStep)
+            {
+                case 0:
+                    bounceMultiplier = 1f; // 기본 바운스 값
+                    break;
+                case 1:
+                    bounceMultiplier = 1.2f; // 1단계 속도에서 1.5배
+                    break;
+                case 2:
+                    bounceMultiplier = 1.3f; // 2단계 속도에서 2배
+                    break;
+                case 3:
+                    bounceMultiplier = 1.4f; // 3단계 속도에서 2.5배
+                    break;
+                default:
+                    bounceMultiplier = 1f; // 기본 바운스 값
+                    break;
+            }
+
+            rigid.AddForce(Vector2.up * bounceForce * bounceMultiplier, ForceMode2D.Impulse); // 속도에 따른 튀어오름
 
             if (bounceCoroutine != null)
             {
@@ -296,9 +346,7 @@ public class PlayerController : Singleton<PlayerController>
                 bounceCoroutine = StartCoroutine(checkBounceReverse());
             }
         }
-
     }
-
     IEnumerator checkBounceReverse()
     {
         while (true)
