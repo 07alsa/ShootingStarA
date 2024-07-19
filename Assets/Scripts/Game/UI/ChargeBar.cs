@@ -17,7 +17,13 @@ public class ChargeBar : MonoBehaviour
     private bool isFlashing; // 반짝이는 중인지 여부
 
     public GameObject goSpace;
-
+    public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
+    public AudioClip chargedSound; // 차지완료 됐을 때 재생할 오디오 클립
+    void Awake()
+    {
+        // AudioSource 컴포넌트를 가져옵니다.
+        audioSource = GetComponent<AudioSource>();
+    }
 
     void Start()
     {
@@ -144,6 +150,7 @@ public class ChargeBar : MonoBehaviour
             chargeEffectCoroutine = StartCoroutine(ChargeEffectCoroutine());
             isFlashing = true; // 반짝이는 중임을 표시
             goSpace.gameObject.SetActive(true);// 텍스트 활성화
+            audioSource.PlayOneShot(chargedSound);//차지완료 사운드 재생
         }
     }
 
@@ -178,6 +185,7 @@ public class ChargeBar : MonoBehaviour
             Color newColor = Color.HSVToRGB(hue, 0.3f, 1f);  // HSV 값을 RGB로 변환
             chargeBarImageLeft.color = newColor; // 왼쪽 이미지의 색상 변경
             chargeBarImageRight.color = newColor; // 오른쪽 이미지의 색상 변경
+
 
             yield return null;  // 다음 프레임까지 대기
         }

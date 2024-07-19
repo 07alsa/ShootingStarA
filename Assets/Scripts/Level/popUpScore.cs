@@ -8,14 +8,21 @@ public class PopUpScore : MonoBehaviour
 {
     [SerializeField]
     TextMeshProUGUI popUpText;
+    public AudioSource audioSource;
+    public AudioClip scoreSound;
+
+
 
     private void Awake()
     {
         popUpText = GetComponentInChildren<TextMeshProUGUI>();
+        audioSource = GetComponent<AudioSource>();
+
     }
 
     private void Start()
     {
+        audioSource.PlayOneShot(scoreSound);
         StartCoroutine(textShowing(popUpText));
     }
 
@@ -33,10 +40,8 @@ public class PopUpScore : MonoBehaviour
             duration += Time.deltaTime;
             text.color = Color.Lerp(text.color, new Color(text.color.r, text.color.g, text.color.b, 0), Time.unscaledDeltaTime);
             text.gameObject.transform.position += Vector3.up * Time.unscaledDeltaTime;
-
             yield return null;
         }
-        //text.color = new Color(text.color.r, text.color.g, text.color.b, 1);
         text.gameObject.SetActive(false);
         Destroy(gameObject);
     }

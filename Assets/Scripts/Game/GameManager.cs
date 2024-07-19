@@ -10,7 +10,14 @@ public class GameManager : Singleton<GameManager>
     public TextMeshProUGUI bestScoreText;     // UI에 표시할 최고 기록을 보여줄 Text 컴포넌트
     private int score;             // 현재 점수
     private int bestScore;         // 최고 기록
+    public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
+    public AudioClip deathSound; // 죽었을 때 재생할 오디오 클립
 
+    void Awake()
+    {
+        // AudioSource 컴포넌트를 가져옵니다.
+        audioSource = GetComponent<AudioSource>();
+    }
 
 
     void Start()
@@ -74,7 +81,20 @@ public class GameManager : Singleton<GameManager>
             // 플레이어 캐릭터 파괴
             Destroy(PlayerController.Instance.gameObject);
         }
+        // 죽었을 때 오디오 재생
+        PlayDeathSound();
+
         StartCoroutine(WaitForDeath());
+    }
+
+    // 죽었을 때 오디오 재생 메서드
+    private void PlayDeathSound()
+    {
+
+        if (audioSource != null && deathSound != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
     }
 
     // 일정 시간 대기 후 씬을 다시 로드하는 코루틴

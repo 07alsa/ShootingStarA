@@ -31,12 +31,14 @@ public class PlayerController : Singleton<PlayerController>
     bool isBouncing = false;
     WallMove wallmove;
     Canvas canvas;
-
+    public AudioSource audioSource;
+    public AudioClip dashSound;
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         trail = GetComponentInChildren<TrailRenderer>();
         wallmove = GetComponent<WallMove>();
+        audioSource = gameObject.AddComponent<AudioSource>();
 
         colorRange = maxFallingSpeed / colorStep;
         // slider = FindObjectOfType<Slider>();
@@ -220,13 +222,19 @@ public class PlayerController : Singleton<PlayerController>
 
         }
     }
-
     IEnumerator dashing()
     {
         float duration = 2f;
         float currentTime = 0f;
         float blinkStart = 1.5f; // 깜빡거림이 시작되는 시간
         float blinkFrequency = 1f; // 초기 깜빡거림 주기
+
+        // 대쉬 시작 시 사운드 재생
+        if (audioSource != null && dashSound != null)
+        {
+            audioSource.clip = dashSound;
+            audioSource.Play();
+        }
 
         while (currentTime < duration)
         {
@@ -256,6 +264,12 @@ public class PlayerController : Singleton<PlayerController>
             }
 
             yield return null;
+        }
+
+        // 대쉬 종료 시 사운드 정지
+        if (audioSource != null)
+        {
+            audioSource.Stop();
         }
 
         if (isDash)
