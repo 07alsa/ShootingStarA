@@ -33,6 +33,7 @@ public class PlayerController : Singleton<PlayerController>
     Canvas canvas;
     public AudioSource audioSource;
     public AudioClip dashSound;
+
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -109,8 +110,6 @@ public class PlayerController : Singleton<PlayerController>
 
     void LateUpdate()
     {
-        // Vector3 textPosition = Camera.main.WorldToScreenPoint(transform.position);
-        // velocityText.transform.position = textPosition;
         velocityText.transform.position = new Vector3(transform.position.x, velocityText.transform.position.y, velocityText.transform.position.z);
     }
 
@@ -253,13 +252,13 @@ public class PlayerController : Singleton<PlayerController>
                 trail.startColor = newColor;
 
                 // 깜빡거림 속도 증가
-                if (currentTime >= duration - 1.5f)
+                if (currentTime >= duration - 1.75f)
                 {
-                    blinkFrequency = 30f; // 깜빡거림 속도 증가
+                    blinkFrequency = 27f; // 깜빡거림 속도 증가
                 }
                 else
                 {
-                    blinkFrequency = 10f; // 기본 깜빡거림 속도
+                    blinkFrequency = 2f; // 기본 깜빡거림 속도
                 }
             }
 
@@ -329,23 +328,30 @@ public class PlayerController : Singleton<PlayerController>
 
             // 속도 구간에 따른 바운스 값을 설정
             float bounceMultiplier;
-            switch (ACCStep)
+            if (isDash)
             {
-                case 0:
-                    bounceMultiplier = 1f; // 기본 바운스 값
-                    break;
-                case 1:
-                    bounceMultiplier = 1.2f; // 1단계 속도에서 1.5배
-                    break;
-                case 2:
-                    bounceMultiplier = 1.3f; // 2단계 속도에서 2배
-                    break;
-                case 3:
-                    bounceMultiplier = 1.4f; // 3단계 속도에서 2.5배
-                    break;
-                default:
-                    bounceMultiplier = 1f; // 기본 바운스 값
-                    break;
+                bounceMultiplier = 0.1f; // 대쉬 중일 때 바운스 값을 많이 줄임
+            }
+            else
+            {
+                switch (ACCStep)
+                {
+                    case 0:
+                        bounceMultiplier = 1f; // 기본 바운스 값
+                        break;
+                    case 1:
+                        bounceMultiplier = 1.2f; // 1단계 속도에서 1.2배
+                        break;
+                    case 2:
+                        bounceMultiplier = 1.3f; // 2단계 속도에서 1.3배
+                        break;
+                    case 3:
+                        bounceMultiplier = 1.4f; // 3단계 속도에서 1.4배
+                        break;
+                    default:
+                        bounceMultiplier = 1f; // 기본 바운스 값
+                        break;
+                }
             }
 
             rigid.AddForce(Vector2.up * bounceForce * bounceMultiplier, ForceMode2D.Impulse); // 속도에 따른 튀어오름
@@ -361,6 +367,7 @@ public class PlayerController : Singleton<PlayerController>
             }
         }
     }
+
     IEnumerator checkBounceReverse()
     {
         while (true)
