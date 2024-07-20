@@ -1,4 +1,5 @@
 using System.Collections;
+using JetBrains.Annotations;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
@@ -9,13 +10,12 @@ public class PlayerController : Singleton<PlayerController>
     TrailRenderer trail;
     [SerializeField] SpriteRenderer sprite1;
     [SerializeField] SpriteRenderer sprite2;
-    [SerializeField] ChargeBar chargeBar1;
-    [SerializeField] ChargeBar chargeBar;
+
     [SerializeField] TextMeshProUGUI velocityTextPfb;
     TextMeshProUGUI velocityText;
 
     [SerializeField] ParticleSystem particle;
-
+    ChargeBar chargeBar;
     [SerializeField] float HorizontalSpeed;
     [SerializeField] float dashSpeed;
     [SerializeField] float bounceForce;
@@ -31,18 +31,19 @@ public class PlayerController : Singleton<PlayerController>
     bool isBouncing = false;
     WallMove wallmove;
     Canvas canvas;
-    public AudioSource audioSource;
-    public AudioClip dashSound;
+    public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
+    public AudioClip dashSound; // 죽었을 때 재생할 오디오 클립
 
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         trail = GetComponentInChildren<TrailRenderer>();
         wallmove = GetComponent<WallMove>();
-        audioSource = gameObject.AddComponent<AudioSource>();
+
+
         colorRange = maxFallingSpeed / colorStep;
         // slider = FindObjectOfType<Slider>();
-
+        chargeBar = FindObjectOfType<ChargeBar>();
 
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         if (velocityTextPfb != null)
@@ -189,20 +190,13 @@ public class PlayerController : Singleton<PlayerController>
         trail.startColor = targetColor;
     }
 
+
     void dash()
     {
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.DownArrow)) && chargeBar.currentGauge == chargeBar.maxGauge)
         {
 
-            int height = Screen.height;
-            if (height > 1080)
-            {
-                chargeBar.UseSkill();
-            }
-            else
-            {
-                chargeBar1.UseSkill();
-            }
+            chargeBar.UseSkill();
 
             if (!isDash)
             {
@@ -229,8 +223,10 @@ public class PlayerController : Singleton<PlayerController>
             }
 
             StartCoroutine(dashing());
+
         }
     }
+
     IEnumerator dashing()
     {
         float duration = 2f;
@@ -327,6 +323,7 @@ public class PlayerController : Singleton<PlayerController>
         {
             rigid.velocity = Vector2.zero;
             float target_vel = ((saveAcc - 1) < 0 ? 0 : (saveAcc - 1)) * colorRange;
+
             rigid.velocity = new Vector2(rigid.velocity.x, -target_vel);
         }
         else

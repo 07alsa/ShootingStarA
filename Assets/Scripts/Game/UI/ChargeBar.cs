@@ -33,6 +33,7 @@ public class ChargeBar : MonoBehaviour
 
     private void Start()
     {
+        currentGauge = maxGauge; // 현재 게이지를 최대값으로 초기화
         // 슬라이더의 백그라운드 이미지를 투명하게 설정
         SetBackgroundTransparent(chargeBarSliderLeft);
         SetBackgroundTransparent(chargeBarSliderRight);

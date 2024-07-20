@@ -14,18 +14,13 @@ public class GameManager : Singleton<GameManager>
     public AudioClip deathSound; // 죽었을 때 재생할 오디오 클립
     public CanvasScaler canvasScaler;
 
-    // Charge Bar 오브젝트들
-    public GameObject chargeBar1080;
-    public GameObject chargeBar1200;
 
-    private bool isGaugeInitialized = false;
 
     void Awake()
     {
         // AudioSource 컴포넌트를 가져옵니다.
         audioSource = GetComponent<AudioSource>();
         canvasScaler = GetComponent<CanvasScaler>();
-        ApplyResolution();
     }
 
     void Start()
@@ -35,29 +30,7 @@ public class GameManager : Singleton<GameManager>
         UpdateBestScoreUI();       // UI에 최고 기록 표시 업데이트
     }
 
-    void ApplyResolution()
-    {
-        // 현재 해상도 가져오기
-        int height = Screen.height;
-        Debug.Log("Screen height: " + height);
 
-        if (height > 1080)
-        {
-            if (chargeBar1200 != null)
-            {
-                chargeBar1200.SetActive(true);
-                chargeBar1080.SetActive(false);
-            }
-        }
-        else
-        {
-            if (chargeBar1080 != null)
-            {
-                chargeBar1080.SetActive(true);
-                chargeBar1200.SetActive(false);
-            }
-        }
-    }
 
 
     // 점수를 추가하고 UI 업데이트
