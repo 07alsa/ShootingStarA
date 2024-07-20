@@ -405,4 +405,11 @@ public class PlayerController : Singleton<PlayerController>
         module.startColor = sprite1.color;
         Destroy(velocityText.gameObject);
     }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("ChargeItem"))
+        {
+            ChargeBar.Instance.ChargeToMax();
+        }
+    }
 }

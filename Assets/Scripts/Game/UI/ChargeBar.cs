@@ -189,4 +189,17 @@ public class ChargeBar : MonoBehaviour
             yield return null;  // 다음 프레임까지 대기
         }
     }
+
+    public void ChargeToMax()
+    {
+        currentGauge = maxGauge;
+        chargeBarSliderLeft.value = currentGauge;
+        chargeBarSliderRight.value = currentGauge;
+
+        StartChargeEffect(); // 차지 바를 빛나도록 하는 메서드 호출
+        Debug.Log("ChargeBar maxed out.");
+    }
+
 }
+
+
