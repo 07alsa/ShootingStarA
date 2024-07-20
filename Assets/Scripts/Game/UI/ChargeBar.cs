@@ -5,6 +5,8 @@ using TMPro;
 
 public class ChargeBar : MonoBehaviour
 {
+    public static ChargeBar Instance { get; private set; }
+
     public Slider chargeBarSliderLeft; // SliderLeft UI 컴포넌트 참조
     public Image chargeBarImageLeft;   // SliderLeft 색상을 변경할 Image 컴포넌트 참조
     public Slider chargeBarSliderRight; // SliderRight UI 컴포넌트 참조
@@ -19,16 +21,18 @@ public class ChargeBar : MonoBehaviour
     public GameObject goSpace;
     public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
     public AudioClip chargedSound; // 차지완료 됐을 때 재생할 오디오 클립
-    void Awake()
+
+    private void Awake()
     {
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
         // AudioSource 컴포넌트를 가져옵니다.
         audioSource = GetComponent<AudioSource>();
     }
 
-    void Start()
+    private void Start()
     {
-        currentGauge = maxGauge; // 현재 게이지를 최대값으로 초기화
-
         // 슬라이더의 백그라운드 이미지를 투명하게 설정
         SetBackgroundTransparent(chargeBarSliderLeft);
         SetBackgroundTransparent(chargeBarSliderRight);
@@ -44,7 +48,7 @@ public class ChargeBar : MonoBehaviour
         goSpace.gameObject.SetActive(false); // 텍스트 비활성화
     }
 
-    void Update()
+    private void Update()
     {
         if (PlayerController.Instance != null && !PlayerController.Instance.isDash)
         {
@@ -64,7 +68,7 @@ public class ChargeBar : MonoBehaviour
     }
 
     // 슬라이더의 백그라운드 이미지를 투명하게 설정하는 함수
-    void SetBackgroundTransparent(Slider slider)
+    private void SetBackgroundTransparent(Slider slider)
     {
         Image backgroundImage = slider.transform.Find("Background").GetComponent<Image>();
         if (backgroundImage != null)
@@ -88,15 +92,10 @@ public class ChargeBar : MonoBehaviour
 
     public void UseSkill()
     {
-        // currentGauge = 0;
-
-        // chargeBarSliderLeft.value = currentGauge; // 슬라이더 업데이트
-        // chargeBarSliderRight.value = currentGauge;
-
         StartCoroutine(gaugeDecreasing());
     }
 
-    IEnumerator gaugeDecreasing()
+    private IEnumerator gaugeDecreasing()
     {
         goSpace.SetActive(false);
 
@@ -143,7 +142,7 @@ public class ChargeBar : MonoBehaviour
     }
 
     // 차지 색상 효과 시작
-    void StartChargeEffect()
+    private void StartChargeEffect()
     {
         if (chargeEffectCoroutine == null)
         {
@@ -155,7 +154,7 @@ public class ChargeBar : MonoBehaviour
     }
 
     // 차지 색상 효과 중지
-    void StopChargeEffect()
+    private void StopChargeEffect()
     {
         if (chargeEffectCoroutine != null)
         {
@@ -173,7 +172,7 @@ public class ChargeBar : MonoBehaviour
     }
 
     // 차지 색상 효과 코루틴
-    IEnumerator ChargeEffectCoroutine()
+    private IEnumerator ChargeEffectCoroutine()
     {
         float timer = 0f;
         float duration = 2f;
@@ -185,7 +184,6 @@ public class ChargeBar : MonoBehaviour
             Color newColor = Color.HSVToRGB(hue, 0.3f, 1f);  // HSV 값을 RGB로 변환
             chargeBarImageLeft.color = newColor; // 왼쪽 이미지의 색상 변경
             chargeBarImageRight.color = newColor; // 오른쪽 이미지의 색상 변경
-
 
             yield return null;  // 다음 프레임까지 대기
         }

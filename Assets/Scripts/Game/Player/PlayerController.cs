@@ -9,8 +9,8 @@ public class PlayerController : Singleton<PlayerController>
     TrailRenderer trail;
     [SerializeField] SpriteRenderer sprite1;
     [SerializeField] SpriteRenderer sprite2;
-    ChargeBar chargeBar;
-
+    [SerializeField] ChargeBar chargeBar1;
+    [SerializeField] ChargeBar chargeBar;
     [SerializeField] TextMeshProUGUI velocityTextPfb;
     TextMeshProUGUI velocityText;
 
@@ -23,7 +23,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] int colorStep;
     Vector3 rotationSpeed; // 초당 90도 회전 (Z축 기준)
     [SerializeField] float colorRange;
-    public bool isDash;
+    public bool isDash = false;
     public int ACCStep;
     Coroutine dashCoroutine;
     Coroutine bounceCoroutine = null;
@@ -40,10 +40,9 @@ public class PlayerController : Singleton<PlayerController>
         trail = GetComponentInChildren<TrailRenderer>();
         wallmove = GetComponent<WallMove>();
         audioSource = gameObject.AddComponent<AudioSource>();
-
         colorRange = maxFallingSpeed / colorStep;
         // slider = FindObjectOfType<Slider>();
-        chargeBar = FindObjectOfType<ChargeBar>();
+
 
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         if (velocityTextPfb != null)
@@ -195,7 +194,15 @@ public class PlayerController : Singleton<PlayerController>
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.DownArrow)) && chargeBar.currentGauge == chargeBar.maxGauge)
         {
 
-            chargeBar.UseSkill();
+            int height = Screen.height;
+            if (height > 1080)
+            {
+                chargeBar.UseSkill();
+            }
+            else
+            {
+                chargeBar1.UseSkill();
+            }
 
             if (!isDash)
             {
@@ -214,11 +221,14 @@ public class PlayerController : Singleton<PlayerController>
                     dashCoroutine = StartCoroutine(dashEffect());
                 }
 
+                // Fever 텍스트 설정
                 velocityText.SetText("<#f98cde>Fever!");
+
+                // velocityText를 가장 앞에 배치
+                velocityText.transform.SetAsLastSibling();
             }
 
             StartCoroutine(dashing());
-
         }
     }
     IEnumerator dashing()
@@ -301,12 +311,10 @@ public class PlayerController : Singleton<PlayerController>
         }
     }
 
-
     float blockY;
     public void SaveAcc()
     {
         saveAcc = ACCStep;
-
         // Debug.Log("[Before]: " + saveAcc);
     }
     public void Bounce(float yPos)
@@ -319,7 +327,6 @@ public class PlayerController : Singleton<PlayerController>
         {
             rigid.velocity = Vector2.zero;
             float target_vel = ((saveAcc - 1) < 0 ? 0 : (saveAcc - 1)) * colorRange;
-
             rigid.velocity = new Vector2(rigid.velocity.x, -target_vel);
         }
         else
@@ -330,7 +337,7 @@ public class PlayerController : Singleton<PlayerController>
             float bounceMultiplier;
             if (isDash)
             {
-                bounceMultiplier = 0.1f; // 대쉬 중일 때 바운스 값을 많이 줄임
+                bounceMultiplier = 0f; // 대쉬 중일 때 바운스 값을 많이 줄임
             }
             else
             {
@@ -378,7 +385,6 @@ public class PlayerController : Singleton<PlayerController>
                 velocityText.SetText("");
             }
 
-
             if (rigid.velocity.y < 0)
             {
                 if (isBouncing)
@@ -402,6 +408,4 @@ public class PlayerController : Singleton<PlayerController>
         module.startColor = sprite1.color;
         Destroy(velocityText.gameObject);
     }
-
-
 }
