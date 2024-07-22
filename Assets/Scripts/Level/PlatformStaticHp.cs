@@ -11,6 +11,7 @@ public class PlatformStaticHp : MonoBehaviour
 
     public PopUpScore scoreTextPfb;
     private PopUpScore scoreText;
+    public DayNightCycle dayNightCycle; // DayNightCycle 스크립트 참조
 
 
     void OnCollisionEnter2D(Collision2D collisionInfo)
@@ -37,15 +38,12 @@ public class PlatformStaticHp : MonoBehaviour
 
         }
     }
-
     public int CalculateScore()
     {
         int basicPoint = 100;
         return basicPoint * (1 + 2 * hp);
 
     }
-
-
     private bool CanBreak()
     {
         if (PlayerController.Instance.ACCStep >= hp || PlayerController.Instance.isDash)

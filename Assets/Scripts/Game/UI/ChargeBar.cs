@@ -62,12 +62,10 @@ public class ChargeBar : MonoBehaviour
 
         if (currentGauge >= maxGauge && !isFlashing)
         {
-            Debug.Log("ChargeBar Update: Starting charge effect");
             StartChargeEffect();
         }
         else if (currentGauge <= 0 && isFlashing)
         {
-            Debug.Log("ChargeBar Update: Stopping charge effect");
             StopChargeEffect();
         }
     }
@@ -102,7 +100,7 @@ public class ChargeBar : MonoBehaviour
     {
         goSpace.SetActive(false);
 
-        float duration = 2.0f;
+        float duration = 1.5f;
         float startValue = maxGauge;
         float endValue = 0;
         float elapsedTime = 0;
@@ -147,7 +145,6 @@ public class ChargeBar : MonoBehaviour
     {
         if (chargeEffectCoroutine == null)
         {
-            Debug.Log("StartChargeEffect: Starting charge effect");
             chargeEffectCoroutine = StartCoroutine(ChargeEffectCoroutine());
             isFlashing = true;
             goSpace.gameObject.SetActive(true);
@@ -159,7 +156,6 @@ public class ChargeBar : MonoBehaviour
     {
         if (chargeEffectCoroutine != null)
         {
-            Debug.Log("StopChargeEffect: Stopping charge effect");
             StopCoroutine(chargeEffectCoroutine);
             chargeEffectCoroutine = null;
         }
@@ -175,7 +171,7 @@ public class ChargeBar : MonoBehaviour
     private IEnumerator ChargeEffectCoroutine()
     {
         float timer = 0f;
-        float duration = 2f;
+        float duration = 1.5f;
 
         while (true)
         {
@@ -192,11 +188,7 @@ public class ChargeBar : MonoBehaviour
     public void ChargeToMax()
     {
         StopCoroutine(gaugeDecreasing());
-        if (chargeEffectCoroutine != null)
-        {
-            StopCoroutine(chargeEffectCoroutine);
-        }
-        chargeEffectCoroutine = null;
+        StopChargeEffect();
 
         currentGauge = maxGauge;
         chargeBarSliderLeft.value = currentGauge;

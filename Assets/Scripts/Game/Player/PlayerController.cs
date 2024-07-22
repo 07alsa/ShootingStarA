@@ -242,9 +242,9 @@ public class PlayerController : Singleton<PlayerController>
     }
     public IEnumerator dashing()
     {
-        float duration = 2f;
+        float duration = 1.5f;
         float currentTime = 0f;
-        float blinkStart = 1.5f; // 깜빡거림이 시작되는 시간
+        float blinkStart = 1f; // 깜빡거림이 시작되는 시간
         float blinkFrequency = 1f; // 초기 깜빡거림 주기
 
         // 대쉬 시작 시 사운드 재생
@@ -298,7 +298,7 @@ public class PlayerController : Singleton<PlayerController>
 
         // 대쉬 종료 시 폭죽 효과 및 플랫폼 제거 실행
         TriggerDashExplosion();
-        RemovePlatformsInRadius(10f); // 반경 5 단위로 설정, 필요에 따라 조정 가능
+        RemovePlatformsInRadius(5f); // 반경 5 단위로 설정, 필요에 따라 조정 가능
 
         // 대쉬 종료 시 원래 색상으로 복원
         sprite1.color = Color.white;
@@ -328,7 +328,6 @@ public class PlayerController : Singleton<PlayerController>
     public void SaveAcc()
     {
         saveAcc = ACCStep;
-        // Debug.Log("[Before]: " + saveAcc);
     }
     public void Bounce(float yPos)
     {

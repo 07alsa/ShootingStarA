@@ -7,8 +7,8 @@ public class MapSpwanManager : MonoBehaviour
     public GameObject[] initialMapPrefabs; // 초기 설정한 배열값
     private List<GameObject> useMapPrefabs; // 사용할 배열
     private List<GameObject> useMapPrefabs1;
-    private Vector3 offset = new Vector3(0,-50f,0); // 얼마만큼 맵 조각이 떨어져 있나. 맵 크기와 상관있음
-    Vector3 startTargetPosition = new Vector3(0,0,0); // 첫 맵 조각이 나올 위치
+    private Vector3 offset = new Vector3(0, -50f, 0); // 얼마만큼 맵 조각이 떨어져 있나. 맵 크기와 상관있음
+    Vector3 startTargetPosition = new Vector3(0, 0, 0); // 첫 맵 조각이 나올 위치
     Vector3 MapPosition; // 랜덤하게 생성될 맵 조각 생성 위치
     private GameObject instantiatedObject;
     private Vector3 playerPosition;
@@ -29,34 +29,38 @@ public class MapSpwanManager : MonoBehaviour
         drawnElement2.transform.position = startTargetPosition + offset; // 맵 조각2 생성 위치
         MapPosition = offset; // 랜덤하게 생성될 맵 조각 생성 위치
 
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {   // 맵 위치와 플레이어 위치 비교 후 반 넘어가면 맵 조각 생성
-        if(PlayerController.Instance != null){
-            
+        if (PlayerController.Instance != null)
+        {
+
             playerPosition = PlayerController.Instance.transform.position;
 
         }
-        
-        
+
+
         // Debug.Log($"Player Y Position: {playerPosition.y}");
         // Debug.Log($"Map Y Position: {MapPosition.y}");     
-        if(playerPosition.y < MapPosition.y && PlayerController.Instance != null){ // 맵 조각 생성 조건
+        if (playerPosition.y < MapPosition.y && PlayerController.Instance != null)
+        { // 맵 조각 생성 조건
             // Debug.Log("IF IN");
             MapPosition += offset; // 맵 조각 생성 위치 더 밑으로 내리기
             GameObject drawnElement = DrawElement(MapPosition); // 맵 조각 List 중에서 하나 가져오기
             drawnElement.transform.position = MapPosition; // 맵 조각 생성 위치로 보내기
-        }          
+        }
     }
 
-    void InstantiatePrefab(){ // 프리팹을 오브젝트로 생성
+    void InstantiatePrefab()
+    { // 프리팹을 오브젝트로 생성
         useMapPrefabs = new List<GameObject>();
         // Debug.Log("IN instantiatePrefab");
 
-        foreach(GameObject prefab in initialMapPrefabs){
+        foreach (GameObject prefab in initialMapPrefabs)
+        {
             instantiatedObject = Instantiate(prefab); // 프리팹을 오브젝트로 만든다
             instantiatedObject.SetActive(false); // 만든 오브젝트를 끈다
             useMapPrefabs.Add(instantiatedObject); // 만든 오브젝트를 useMapPrefabs 배열에 넣는다.
@@ -65,21 +69,20 @@ public class MapSpwanManager : MonoBehaviour
         ResetGameObjects();
     }
 
-    void ResetGameObjects(){ // 생성된 오브젝트를 넣은 List 초기화
+    void ResetGameObjects()
+    { // 생성된 오브젝트를 넣은 List 초기화
         //초기 배열 현재 리스트 복사, 랜덤 수 다 뽑혔을 때 초기화 하는 거
         useMapPrefabs1 = new List<GameObject>(useMapPrefabs);
 
     }
 
-    GameObject DrawElement(Vector3 position){
-        if(useMapPrefabs1.Count == 0){ // List에 몇 개 남았는지 보기
+    GameObject DrawElement(Vector3 position)
+    {
+        if (useMapPrefabs1.Count == 0)
+        { // List에 몇 개 남았는지 보기
 
-            // 현재 리스트 비어있으면 초기 리스트로 초기화
-            // instantiatedObject.SetActive(false);
-            //ResetGameObjects();
-            // Debug.Log("NO Element in List");
             InstantiatePrefab();
-            
+
 
         }
 
@@ -87,22 +90,20 @@ public class MapSpwanManager : MonoBehaviour
         int index = Random.Range(0, useMapPrefabs1.Count); // 숫자 뽑기
         GameObject drawnElement = useMapPrefabs1[index]; // 해당 숫자에 Element 가져오기
         drawnElement.SetActive(true);
-        drawnElement.transform.position = position;        
+        drawnElement.transform.position = position;
         useMapPrefabs1.RemoveAt(index); // 뽑힌 Element 제거하기
         objectQueue.Enqueue(drawnElement); // 생성된 오브젝트 Queue에 추가
-        // Debug.Log($"Queue +{objectQueue.Count}");
-        
-        // Debug.Log(index);
 
-        if(objectQueue.Count > maxActiveObjects){
+
+        if (objectQueue.Count > maxActiveObjects)
+        {
             GameObject oldestElement = objectQueue.Dequeue(); // 가장 오래된 오브젝트 제거
             // oldestElement.SetActive(false);
             Destroy(oldestElement);
-            Debug.Log("Remove");
         }
 
         return drawnElement; // Element 반환
     }
 
-    
+
 }
