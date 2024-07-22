@@ -1354,7 +1354,6 @@ MonoBehaviour:
   mainCamera: {fileID: 338650933}
   darkOverlay: {fileID: 349890929}
   spotlightDuration: 10
-  earlyDarkenStart: 5
 --- !u!1 &349890927
 GameObject:
   m_ObjectHideFlags: 0
@@ -3195,8 +3194,8 @@ MonoBehaviour:
   - {fileID: 7911272304737722623, guid: ca179b992de0542498d8bee6f604c111, type: 3}
   - {fileID: 7911272304737722623, guid: c04fb022708d4ef4aa6a24138d1625b4, type: 3}
   - {fileID: 989914252056636910, guid: 4b7433ff19144a841b4c4b161fe9e8ae, type: 3}
-  - {fileID: 989914252056636910, guid: ca49acf1d09d609408f16a2ae1b8d250, type: 3}
-  - {fileID: 989914252056636910, guid: b3390096797743b4b8f7af7038fe1503, type: 3}
+  - {fileID: 7911272304737722623, guid: 2d7af60708626de4893c89abe1869fe6, type: 3}
+  - {fileID: 7911272304737722623, guid: 6005bb9b3af542e49935e7ad3572ac92, type: 3}
   - {fileID: 7911272304737722623, guid: ef133c836c082ba4dac9ccc3bc951be6, type: 3}
   - {fileID: 7911272304737722623, guid: 2d7af60708626de4893c89abe1869fe6, type: 3}
 --- !u!4 &1315081115
