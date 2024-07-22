@@ -34,7 +34,7 @@ public class PlayerController : Singleton<PlayerController>
     Canvas canvas;
     public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
     public AudioClip dashSound; // 대쉬 떄 재생할 오디오 클립
-
+    public AudioClip boomSound;
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -252,7 +252,6 @@ public class PlayerController : Singleton<PlayerController>
         {
             audioSource.clip = dashSound;
             audioSource.Play();
-            Debug.Log("Dash sound played."); // 디버그 로그 추가
         }
 
         while (currentTime < duration)
@@ -447,6 +446,12 @@ public class PlayerController : Singleton<PlayerController>
             Vector3 explosionPosition = transform.position - new Vector3(0, 1.0f, 0); // 기본 위치에서 추가로 내려갈 거리
             ParticleSystem explosion = Instantiate(dashExplosionEffect, explosionPosition, Quaternion.identity);
             explosion.Play();
+        }
+        // 폭발 시 사운드 재생
+        if (audioSource != null && boomSound != null)
+        {
+            audioSource.clip = boomSound;
+            audioSource.Play();
         }
     }
     void RemovePlatformsInRadius(float radius)
