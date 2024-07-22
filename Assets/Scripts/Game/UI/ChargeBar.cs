@@ -22,10 +22,19 @@ public class ChargeBar : MonoBehaviour
     public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
     public AudioClip chargedSound; // 차지완료 됐을 때 재생할 오디오 클립
 
+
     private void Awake()
     {
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        // 싱글톤 인스턴스를 설정합니다.
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 씬이 바뀌어도 객체를 파괴하지 않음
+        }
+        else
+        {
+            Destroy(gameObject); // 이미 인스턴스가 존재하면 현재 객체를 파괴합니다.
+        }
 
         // AudioSource 컴포넌트를 가져옵니다.
         audioSource = GetComponent<AudioSource>();
@@ -67,6 +76,7 @@ public class ChargeBar : MonoBehaviour
             StopChargeEffect();
         }
     }
+
 
     // 슬라이더의 백그라운드 이미지를 투명하게 설정하는 함수
     private void SetBackgroundTransparent(Slider slider)
@@ -192,12 +202,15 @@ public class ChargeBar : MonoBehaviour
 
     public void ChargeToMax()
     {
+        StopCoroutine(gaugeDecreasing()); // 차지 관련 모든 코루틴 중지
+        chargeEffectCoroutine = null;
+
         currentGauge = maxGauge;
         chargeBarSliderLeft.value = currentGauge;
         chargeBarSliderRight.value = currentGauge;
 
         StartChargeEffect(); // 차지 바를 빛나도록 하는 메서드 호출
-        Debug.Log("ChargeBar maxed out.");
+
     }
 
 }

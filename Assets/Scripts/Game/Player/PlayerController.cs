@@ -15,6 +15,7 @@ public class PlayerController : Singleton<PlayerController>
     TextMeshProUGUI velocityText;
 
     [SerializeField] ParticleSystem particle;
+    [SerializeField] ParticleSystem dashExplosionEffect; // 대쉬 종료 시 폭죽 효과
     ChargeBar chargeBar;
     [SerializeField] float HorizontalSpeed;
     [SerializeField] float dashSpeed;
@@ -226,8 +227,7 @@ public class PlayerController : Singleton<PlayerController>
 
         }
     }
-
-    IEnumerator dashing()
+    public IEnumerator dashing()
     {
         float duration = 2f;
         float currentTime = 0f;
@@ -283,6 +283,10 @@ public class PlayerController : Singleton<PlayerController>
             StopCoroutine(dashCoroutine);
         }
 
+        // 대쉬 종료 시 폭죽 효과 및 플랫폼 제거 실행
+        TriggerDashExplosion();
+        RemovePlatformsInRadius(10f); // 반경 5 단위로 설정, 필요에 따라 조정 가능
+
         // 대쉬 종료 시 원래 색상으로 복원
         sprite1.color = Color.white;
         sprite2.color = Color.white;
@@ -306,7 +310,41 @@ public class PlayerController : Singleton<PlayerController>
             yield return null;  // 다음 프레임까지 대기
         }
     }
+    // 대쉬를 즉시 종료하는 메소드
+    public void ImmediateDashEnd()
+    {
+        // 대쉬 중인 경우에만 처리
+        if (isDash)
+        {
+            // 대쉬 관련 코루틴 중지
+            if (dashCoroutine != null)
+            {
+                StopCoroutine(dashCoroutine);
+                dashCoroutine = null;
+            }
 
+            // 대쉬 상태 종료
+            isDash = false;
+
+            // 대쉬 종료 시 사운드 정지
+            if (audioSource != null)
+            {
+                audioSource.Stop();
+            }
+
+            // 대쉬 종료 시 효과 복원
+            sprite1.color = Color.white;
+            sprite2.color = Color.white;
+            trail.startColor = Color.white;
+
+            // 대쉬 종료 시 폭죽 효과 및 플랫폼 제거 실행
+            TriggerDashExplosion();
+            RemovePlatformsInRadius(10f); // 반경 10 단위로 설정, 필요에 따라 조정 가능
+
+            // 대쉬 종료 후 속도를 0으로 설정 (정지 상태로 복원)
+            rigid.velocity = Vector2.zero;
+        }
+    }
     float blockY;
     public void SaveAcc()
     {
@@ -405,11 +443,41 @@ public class PlayerController : Singleton<PlayerController>
         module.startColor = sprite1.color;
         Destroy(velocityText.gameObject);
     }
-    void OnTriggerEnter(Collider other)
+
+    void TriggerDashExplosion()
     {
-        if (other.gameObject.CompareTag("ChargeItem"))
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer != null)
         {
-            ChargeBar.Instance.ChargeToMax();
+            // 플레이어의 가장 아래쪽 위치 계산
+            Vector3 playerBottomPosition = transform.position - new Vector3(0, spriteRenderer.bounds.extents.y, 0);
+
+            // 플레이어의 가장 아래쪽 위치보다 더 아래로 조정
+            float offset = 4.0f; // 플레이어 아래쪽에서 추가로 내려갈 거리
+            Vector3 explosionPosition = playerBottomPosition - new Vector3(0, offset, 0);
+
+            // 폭죽 효과 실행
+            ParticleSystem explosion = Instantiate(dashExplosionEffect, explosionPosition, Quaternion.identity);
+            explosion.Play();
+        }
+        else
+        {
+            // 폭죽 효과 실행 (기본 위치에서)
+            Vector3 explosionPosition = transform.position - new Vector3(0, 1.0f, 0); // 기본 위치에서 추가로 내려갈 거리
+            ParticleSystem explosion = Instantiate(dashExplosionEffect, explosionPosition, Quaternion.identity);
+            explosion.Play();
+        }
+    }
+    void RemovePlatformsInRadius(float radius)
+    {
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, radius);
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.CompareTag("Platform"))
+            {
+                Destroy(hitCollider.gameObject);
+            }
         }
     }
 }
