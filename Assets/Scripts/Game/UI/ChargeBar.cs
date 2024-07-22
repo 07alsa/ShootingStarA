@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class ChargeBar : MonoBehaviour
 {
@@ -22,40 +21,36 @@ public class ChargeBar : MonoBehaviour
     public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
     public AudioClip chargedSound; // 차지완료 됐을 때 재생할 오디오 클립
 
-
     private void Awake()
     {
-        // 싱글톤 인스턴스를 설정합니다.
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 씬이 바뀌어도 객체를 파괴하지 않음
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Destroy(gameObject); // 이미 인스턴스가 존재하면 현재 객체를 파괴합니다.
+            Destroy(gameObject);
         }
 
-        // AudioSource 컴포넌트를 가져옵니다.
         audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
     {
-        currentGauge = maxGauge; // 현재 게이지를 최대값으로 초기화
-        // 슬라이더의 백그라운드 이미지를 투명하게 설정
+        currentGauge = maxGauge;
         SetBackgroundTransparent(chargeBarSliderLeft);
         SetBackgroundTransparent(chargeBarSliderRight);
 
         if (chargeBarSliderLeft != null && chargeBarSliderRight != null)
         {
-            chargeBarSliderLeft.maxValue = maxGauge; // 슬라이더의 최대 값을 설정
+            chargeBarSliderLeft.maxValue = maxGauge;
             chargeBarSliderRight.maxValue = maxGauge;
-            chargeBarSliderLeft.value = currentGauge; // 초기 게이지 값 설정
+            chargeBarSliderLeft.value = currentGauge;
             chargeBarSliderRight.value = currentGauge;
         }
 
-        goSpace.gameObject.SetActive(false); // 텍스트 비활성화
+        goSpace.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -65,32 +60,29 @@ public class ChargeBar : MonoBehaviour
             autoChargeSkill();
         }
 
-        // 게이지가 맥스에 도달하고 반짝이는 중이지 않다면 반짝이기 시작
         if (currentGauge >= maxGauge && !isFlashing)
         {
+            Debug.Log("ChargeBar Update: Starting charge effect");
             StartChargeEffect();
         }
-        // 게이지가 0이 되면 반짝이는 효과 중지
         else if (currentGauge <= 0 && isFlashing)
         {
+            Debug.Log("ChargeBar Update: Stopping charge effect");
             StopChargeEffect();
         }
     }
 
-
-    // 슬라이더의 백그라운드 이미지를 투명하게 설정하는 함수
     private void SetBackgroundTransparent(Slider slider)
     {
         Image backgroundImage = slider.transform.Find("Background").GetComponent<Image>();
         if (backgroundImage != null)
         {
             Color transparentColor = backgroundImage.color;
-            transparentColor.a = 0f; // 알파 값을 0으로 설정하여 완전히 투명하게 만듦
+            transparentColor.a = 0f;
             backgroundImage.color = transparentColor;
         }
     }
 
-    // 발판을 부술 때 호출되는 함수
     public void IncreaseGauge()
     {
         if (currentGauge < maxGauge)
@@ -110,10 +102,10 @@ public class ChargeBar : MonoBehaviour
     {
         goSpace.SetActive(false);
 
-        float duration = 2.0f; // 애니메이션 지속 시간
-        float startValue = maxGauge; // 슬라이더의 초기 값
-        float endValue = 0; // 슬라이더의 최종 값
-        float elapsedTime = 0; // 경과 시간
+        float duration = 2.0f;
+        float startValue = maxGauge;
+        float endValue = 0;
+        float elapsedTime = 0;
 
         while (elapsedTime < duration)
         {
@@ -125,11 +117,10 @@ public class ChargeBar : MonoBehaviour
         }
 
         currentGauge = endValue;
-        chargeBarSliderLeft.value = currentGauge; // 애니메이션이 끝난 후 최종 값을 설정
+        chargeBarSliderLeft.value = currentGauge;
         chargeBarSliderRight.value = currentGauge;
     }
 
-    // 스킬 게이지를 증가시키는 함수
     public void ChargeSkill(float amount)
     {
         currentGauge += amount;
@@ -137,7 +128,7 @@ public class ChargeBar : MonoBehaviour
         {
             currentGauge = maxGauge;
         }
-        chargeBarSliderLeft.value = currentGauge; // 슬라이더 업데이트
+        chargeBarSliderLeft.value = currentGauge;
         chargeBarSliderRight.value = currentGauge;
     }
 
@@ -148,41 +139,39 @@ public class ChargeBar : MonoBehaviour
         {
             currentGauge = maxGauge;
         }
-        chargeBarSliderLeft.value = currentGauge; // 슬라이더 업데이트
+        chargeBarSliderLeft.value = currentGauge;
         chargeBarSliderRight.value = currentGauge;
     }
 
-    // 차지 색상 효과 시작
     private void StartChargeEffect()
     {
         if (chargeEffectCoroutine == null)
         {
+            Debug.Log("StartChargeEffect: Starting charge effect");
             chargeEffectCoroutine = StartCoroutine(ChargeEffectCoroutine());
-            isFlashing = true; // 반짝이는 중임을 표시
-            goSpace.gameObject.SetActive(true);// 텍스트 활성화
-            audioSource.PlayOneShot(chargedSound);//차지완료 사운드 재생
+            isFlashing = true;
+            goSpace.gameObject.SetActive(true);
+            audioSource.PlayOneShot(chargedSound);
         }
     }
 
-    // 차지 색상 효과 중지
     private void StopChargeEffect()
     {
         if (chargeEffectCoroutine != null)
         {
+            Debug.Log("StopChargeEffect: Stopping charge effect");
             StopCoroutine(chargeEffectCoroutine);
             chargeEffectCoroutine = null;
         }
 
-        // 원래 색상으로 복원
         Color targetColor;
         ColorUtility.TryParseHtmlString("#BF94E4", out targetColor);
         chargeBarImageLeft.color = targetColor;
         chargeBarImageRight.color = targetColor;
-        isFlashing = false; // 반짝이는 중이 아님을 표시
-        goSpace.gameObject.SetActive(false);// 텍스트 비활성화
+        isFlashing = false;
+        goSpace.gameObject.SetActive(false);
     }
 
-    // 차지 색상 효과 코루틴
     private IEnumerator ChargeEffectCoroutine()
     {
         float timer = 0f;
@@ -191,28 +180,28 @@ public class ChargeBar : MonoBehaviour
         while (true)
         {
             timer += Time.deltaTime / duration;
-            float hue = Mathf.Repeat(timer, 1f);  // hue 값이 0에서 1 사이를 반복
-            Color newColor = Color.HSVToRGB(hue, 0.3f, 1f);  // HSV 값을 RGB로 변환
-            chargeBarImageLeft.color = newColor; // 왼쪽 이미지의 색상 변경
-            chargeBarImageRight.color = newColor; // 오른쪽 이미지의 색상 변경
+            float hue = Mathf.Repeat(timer, 1f);
+            Color newColor = Color.HSVToRGB(hue, 0.3f, 1f);
+            chargeBarImageLeft.color = newColor;
+            chargeBarImageRight.color = newColor;
 
-            yield return null;  // 다음 프레임까지 대기
+            yield return null;
         }
     }
 
     public void ChargeToMax()
     {
-        StopCoroutine(gaugeDecreasing()); // 차지 관련 모든 코루틴 중지
+        StopCoroutine(gaugeDecreasing());
+        if (chargeEffectCoroutine != null)
+        {
+            StopCoroutine(chargeEffectCoroutine);
+        }
         chargeEffectCoroutine = null;
 
         currentGauge = maxGauge;
         chargeBarSliderLeft.value = currentGauge;
         chargeBarSliderRight.value = currentGauge;
 
-        StartChargeEffect(); // 차지 바를 빛나도록 하는 메서드 호출
-
+        StartChargeEffect();
     }
-
 }
-
-

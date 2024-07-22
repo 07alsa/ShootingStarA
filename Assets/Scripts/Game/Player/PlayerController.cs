@@ -33,13 +33,14 @@ public class PlayerController : Singleton<PlayerController>
     WallMove wallmove;
     Canvas canvas;
     public AudioSource audioSource; // 오디오 소스 컴포넌트 참조
-    public AudioClip dashSound; // 죽었을 때 재생할 오디오 클립
+    public AudioClip dashSound; // 대쉬 떄 재생할 오디오 클립
 
     void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         trail = GetComponentInChildren<TrailRenderer>();
         wallmove = GetComponent<WallMove>();
+        audioSource = GetComponent<AudioSource>();
 
 
         colorRange = maxFallingSpeed / colorStep;
@@ -196,14 +197,12 @@ public class PlayerController : Singleton<PlayerController>
     {
         if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.DownArrow)) && chargeBar.currentGauge == chargeBar.maxGauge)
         {
-
             chargeBar.UseSkill();
 
             if (!isDash)
             {
                 isDash = true;
 
-                // 잠깐 정지
                 rigid.velocity = Vector2.zero;
 
                 if (dashCoroutine != null)
@@ -216,15 +215,29 @@ public class PlayerController : Singleton<PlayerController>
                     dashCoroutine = StartCoroutine(dashEffect());
                 }
 
-                // Fever 텍스트 설정
                 velocityText.SetText("<#f98cde>Fever!");
-
-                // velocityText를 가장 앞에 배치
                 velocityText.transform.SetAsLastSibling();
             }
 
             StartCoroutine(dashing());
+        }
+    }
 
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("ChargeItem"))
+        {
+            if (isDash)
+            {
+                chargeBar.StopAllCoroutines(); // 게이지 업데이트 코루틴 중지
+                chargeBar.currentGauge = 0;
+                chargeBar.chargeBarSliderLeft.value = 0;
+                chargeBar.chargeBarSliderRight.value = 0;
+            }
+
+            chargeBar.ChargeToMax();
+
+            Destroy(other.gameObject);
         }
     }
     public IEnumerator dashing()
@@ -239,6 +252,7 @@ public class PlayerController : Singleton<PlayerController>
         {
             audioSource.clip = dashSound;
             audioSource.Play();
+            Debug.Log("Dash sound played."); // 디버그 로그 추가
         }
 
         while (currentTime < duration)
@@ -310,41 +324,7 @@ public class PlayerController : Singleton<PlayerController>
             yield return null;  // 다음 프레임까지 대기
         }
     }
-    // 대쉬를 즉시 종료하는 메소드
-    public void ImmediateDashEnd()
-    {
-        // 대쉬 중인 경우에만 처리
-        if (isDash)
-        {
-            // 대쉬 관련 코루틴 중지
-            if (dashCoroutine != null)
-            {
-                StopCoroutine(dashCoroutine);
-                dashCoroutine = null;
-            }
 
-            // 대쉬 상태 종료
-            isDash = false;
-
-            // 대쉬 종료 시 사운드 정지
-            if (audioSource != null)
-            {
-                audioSource.Stop();
-            }
-
-            // 대쉬 종료 시 효과 복원
-            sprite1.color = Color.white;
-            sprite2.color = Color.white;
-            trail.startColor = Color.white;
-
-            // 대쉬 종료 시 폭죽 효과 및 플랫폼 제거 실행
-            TriggerDashExplosion();
-            RemovePlatformsInRadius(10f); // 반경 10 단위로 설정, 필요에 따라 조정 가능
-
-            // 대쉬 종료 후 속도를 0으로 설정 (정지 상태로 복원)
-            rigid.velocity = Vector2.zero;
-        }
-    }
     float blockY;
     public void SaveAcc()
     {
